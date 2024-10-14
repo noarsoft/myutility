@@ -387,7 +387,7 @@ export function get_ymdhhmm_to_hhmmString(ymdhhmmss: string, dilimeter?: string 
         throw new Error('Invalid input. The date format should be at least YYYYMMDDHHMM.');
     }
 
-    let s1: string = "-"
+    let s1: string = ":"
     if (dilimeter !== undefined && dilimeter !== null) {
         s1 = dilimeter;
     }
@@ -436,7 +436,7 @@ export function get_ymdhhmmss_to_hhmmssString(ymdhhmmss: string, dilimeter?: str
         throw new Error('Invalid input. The date format should be at least YYYYMMDDHHMMSS.');
     }
 
-    let s1: string = "-"
+    let s1: string = ":"
     if (dilimeter !== undefined && dilimeter !== null) {
         s1 = dilimeter;
     }
@@ -473,7 +473,8 @@ export function get_ymdhhmmssString_to_dateutc(ymdhhmmss: string): Date | null {
     if (ymdhhmmss.length >= 12) {
         hours = parseInt(ymdhhmmss.substring(8, 10), 10);
         minutes = parseInt(ymdhhmmss.substring(10, 12), 10);
-    }else{
+    }
+    if (ymdhhmmss.length >= 14) {
         seconds = parseInt(ymdhhmmss.substring(12, 14), 10);
     }
 
