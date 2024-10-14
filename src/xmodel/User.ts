@@ -1,6 +1,17 @@
-const { User } = require('your-utility-package-name');
+// userModel.ts
 
-// ตัวอย่างการใช้งานฟังก์ชันใน User Model
-const newUser = User.createUser('Alice', 'alice@example.com');
-const user = User.getUserById(newUser.id);
-console.log(user);
+class User {
+    id: number;
+    name: string;
+    email: string;
+    line_id: string|null;
+
+    constructor(id: number, name: string, email: string, line_id: string) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.line_id = line_id;
+    }
+}
+
+export default User;
