@@ -111,15 +111,17 @@ export function is_jsonobject(val: any): boolean {
  * @returns true หากวันที่ถูกต้อง, false หากไม่ถูกต้อง
  */
 export function validate_ymdhhmmss(ymdhhmmss: string): boolean {
+
     if (ymdhhmmss.length < 8 || ymdhhmmss.length > 14 ||
-        ymdhhmmss.length === 9 || ymdhhmmss.length === 11) {
-        return false;
+        ymdhhmmss.length === 10 || ymdhhmmss.length === 9 || ymdhhmmss.length === 11) {
+
+            return false;
     }
 
     // ดึงข้อมูลปี, เดือน, วัน, ชั่วโมง และนาทีจาก string
-    const year = parseInt(ymdhhmmss.substring(0, 4), 10);
-    const month = parseInt(ymdhhmmss.substring(4, 6), 10) - 1; // เดือนใน Date ต้อง -1 (0-11)
-    const day = parseInt(ymdhhmmss.substring(6, 8), 10);
+    const year = parseInt(ymdhhmmss.substring(0, 4));
+    const month = parseInt(ymdhhmmss.substring(4, 6)) - 1; // เดือนใน Date ต้อง -1 (0-11)
+    const day = parseInt(ymdhhmmss.substring(6, 8));
     
     let hours:number = 0;
     let minutes:number = 0;
@@ -137,9 +139,8 @@ export function validate_ymdhhmmss(ymdhhmmss: string): boolean {
     if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) {
         return false;
     }
-
     // ตรวจสอบวันที่โดยใช้ฟังก์ชัน Date ของ JavaScript
-    const date = new Date(year, month, day);
+    const date = new Date(Date.UTC(year, month, day));
     if (
         date.getUTCFullYear() !== year ||
         date.getUTCMonth() !== month ||
@@ -155,6 +156,23 @@ export function validate_ymdhhmmss(ymdhhmmss: string): boolean {
 
 
 //--convert date function--
+/**
+ * ฟังก์ชันสำหรับดึง timestamp จาก dateUTC
+ * @param dateUTC - วันในรูปแบบ date
+ * @returns วันในรูปแบบ timestamp
+ */
+export function get_dateutc_to_timestamp(dateUTC: Date): number {
+    return Math.floor(dateUTC.getTime() / 1000);
+}
+
+/**
+ * ฟังก์ชันสำหรับดึง dateUTC จาก timestamp
+ * @param dateUTC - วันในรูปแบบ date
+ * @returns วันในรูปแบบ dateUTC
+ */
+export function get_timestamp_to_dateutc(timestamp: number): Date {
+    return new Date(timestamp * 1000);
+}
 
 /**
  * ฟังก์ชันสำหรับดึงชื่อวันในสัปดาห์จากวันที่ที่กำหนด หรือวันที่ปัจจุบัน
@@ -432,7 +450,7 @@ export function get_ymdhhmm_to_hhmmTH(ymdhhmmss: string, dilimeter?: string | nu
  */
 export function get_ymdhhmmss_to_hhmmssString(ymdhhmmss: string, dilimeter?: string | null): string {
     // ตรวจสอบว่าความยาวของ input ต้องมีอย่างน้อย 12 ตัวอักษร
-    if (ymdhhmmss.length < 14) {
+    if (ymdhhmmss.length > 14) {
         throw new Error('Invalid input. The date format should be at least YYYYMMDDHHMMSS.');
     }
 
@@ -456,9 +474,10 @@ export function get_ymdhhmmss_to_hhmmssString(ymdhhmmss: string, dilimeter?: str
  * @returns Date object หรือ null หากรูปแบบไม่ถูกต้อง
  */
 export function get_ymdhhmmssString_to_dateutc(ymdhhmmss: string): Date | null {
+
     // ตรวจสอบความยาวของ input ต้องเท่ากับ 14 ตัวอักษร
-    if (validate_ymdhhmmss(ymdhhmmss)) {
-        return null;
+    if (!validate_ymdhhmmss(ymdhhmmss)) {
+        throw new Error('Invalid input date.');
     } 
 
     // ดึงข้อมูลปี, เดือน, วัน, ชั่วโมง, นาที และวินาทีจาก string
@@ -601,4 +620,110 @@ export function get_dmyString_to_dateutc(dateStr: string, dilimeter?: string | n
     }
 
     return utcDate; // คืนค่า UTC Date object ที่ถูกต้อง
+}
+
+/**
+ * ฟังก์ชันสำหรับแปลงวันที่ในรูปแบบ json {ymd:'ymd', ymdhhmmss:'ymdhhmmss', ...}
+ * @param year - year
+ * @param month - month
+ * @param date - date
+ * @param hh - hh
+ * @param mm - mm
+ * @param ss - ss
+ * @returns utcDate
+ */
+export function get_dateutc(
+    year?: number,
+    month?: number,
+    date?: number,
+    hh?: number | null,
+    mm?: number | null,
+    ss?: number | null
+): Date {
+    let utcDate: Date;
+
+    if (year === undefined || month === undefined || date === undefined) {
+        // ถ้าไม่ส่ง year, month, หรือ date ใช้วันที่ปัจจุบัน
+        const now = new Date();
+        utcDate = new Date(Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate(),
+            now.getUTCHours(),
+            now.getUTCMinutes(),
+            now.getUTCSeconds()
+        ));
+    } else {
+        // ใช้ค่าที่ส่งมา
+
+        if (hh === undefined || hh === null){
+            hh = 0
+        }
+        if (mm === undefined || mm === null){
+            mm = 0
+        }
+        if (ss === undefined || ss === null){
+            ss = 0
+        }
+
+        const formattedDate = `${year.toString().padStart(4, '0')}${month.toString().padStart(2, '0')}${date.toString().padStart(2, '0')}${hh.toString().padStart(2, '0')}${mm.toString().padStart(2, '0')}${ss.toString().padStart(2, '0')}`;
+        if(!validate_ymdhhmmss(formattedDate))
+        {
+            throw new Error('Invalid input date.');
+        }
+
+        utcDate = new Date(Date.UTC(year, month - 1, date, hh, mm, ss));
+    }
+
+    return utcDate;
+}
+
+/**
+ * ฟังก์ชันสำหรับแปลงวันที่ในรูปแบบ json { year: number, month: number, date: number, hh: number, mm: number, ss: number }
+ * @param ymd - วันที่ในรูปแบบ ymd
+ * @param ymdhhmm - วันที่ในรูปแบบ ymdhhmm
+ * @param ymdhhmmss - วันที่ในรูปแบบ ymdhhmmss
+ * @returns json { year: number, month: number, date: number, hh: number, mm: number, ss: number }
+ */
+export function get_ymdhhmmssString_to_json_detail(ymdhhmmss: string): { year: number, month: number, date: number, hh: number, mm: number, ss: number } {
+    
+    const date1: Date | null = get_ymdhhmmssString_to_dateutc(ymdhhmmss);
+    if (date1 === null) {
+        throw new Error('Invalid input. The date format should be at least YYYYMMDD.');
+    }
+
+    const date: Date = date1 as Date;
+    return {
+        year: date.getUTCFullYear(),
+        month: date.getUTCMonth() + 1, // เดือนเริ่มนับที่ 0
+        date: date.getUTCDate(),
+        hh: date.getUTCHours(),
+        mm: date.getUTCMinutes(),
+        ss: date.getUTCSeconds(),
+    };
+}
+
+/**
+ * ฟังก์ชันสำหรับแปลงวันที่ในรูปแบบ json {ymd:'ymd', ymdhhmmss:'ymdhhmmss', ...}
+ * @param ymd - วันที่ในรูปแบบ ymd
+ * @param ymdhhmm - วันที่ในรูปแบบ ymdhhmm
+ * @param ymdhhmmss - วันที่ในรูปแบบ ymdhhmmss
+ * @returns json {ymd:'ymd', ymdhhmmss:'ymdhhmmss', ...}
+ */
+export function get_json_date(ymdhhmmss: string): { 
+    year: number, month: number, date: number, hh: number, mm: number, ss: number, timestamp: number } {
+    let json_detail = get_ymdhhmmssString_to_json_detail(ymdhhmmss);
+
+    let date1: Date = get_dateutc(json_detail.year, json_detail.month, json_detail.date, 
+        json_detail.hh, json_detail.mm, json_detail.ss);
+
+    return {
+        year:date1.getUTCFullYear(),
+        month:date1.getUTCMonth()+1,
+        date:date1.getUTCDate(),
+        hh:date1.getUTCHours(),
+        mm:date1.getUTCMinutes(),
+        ss:date1.getUTCSeconds(),
+        timestamp: get_dateutc_to_timestamp(date1)
+    };
 }
