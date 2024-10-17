@@ -1,6 +1,45 @@
 //---validate---
 
 /**
+ * Function to pad a string to the left until it reaches a specific length.
+ * If the string is shorter than the specified length (x), it will be padded with the specified character (padStr).
+ *
+ * @param input - The input string to be padded.
+ * @param x - The target length of the final string.
+ * @param padStr - The character to use for padding (default is '0').
+ * @returns The padded string.
+ */
+function pad_string_left(input: string, x: number, padStr: string = '0'): string {
+    // If the input string is already longer or equal to the specified length, return it unchanged
+    if (input.length >= x) {
+        return input;
+    }
+
+    // Pad the string from the left until it reaches the desired length
+    return input.padStart(x, padStr);
+}
+
+/**
+ * Function to pad a string to the right until it reaches a specific length.
+ * If the string is shorter than the specified length (x), it will be padded with the specified character (padStr).
+ *
+ * @param input - The input string to be padded.
+ * @param x - The target length of the final string.
+ * @param padStr - The character to use for padding (default is '0').
+ * @returns The padded string.
+ */
+function padStringRight(input: string, x: number, padStr: string = '0'): string {
+    // If the input string is already longer or equal to the specified length, return it unchanged
+    if (input.length >= x) {
+        return input;
+    }
+
+    // Pad the string from the right until it reaches the desired length
+    return input.padEnd(x, padStr);
+}
+
+
+/**
  * ฟังก์ชันสำหรับตรวจสอบว่าตัวแปรเป็น undefined หรือไม่
  * @param variable - ตัวแปรที่ต้องการตรวจสอบ
  * @returns true หากตัวแปรเป็น undefined, false หากไม่ใช่
@@ -362,7 +401,7 @@ export function get_hhmmssString(date?: Date | null) {
  * @param date - เวลาที่ต้องการใช้ (สามารถเป็น null หรือไม่ส่งมาก็ได้)
  * @returns เวลาในรูปแบบ HHMMSS
  */
-export function get_ymdhhmmSsstring(date?: Date | null) {
+export function get_ymdhhmmssString(date?: Date | null) {
     return get_ymdString(date) + get_hhmmssString(date);
 }
 
@@ -387,6 +426,31 @@ export function get_ymd_to_dmyString(ymdhhmmss: string, dilimeter?: string | nul
 
     // ดึงข้อมูลจาก string
     const year = ymdhhmmss.substring(0, 4); // 4 ตัวแรกคือปี
+    const month = ymdhhmmss.substring(4, 6); // ถัดมา 2 ตัวคือเดือน
+    const day = ymdhhmmss.substring(6, 8); // ถัดมาอีก 2 ตัวคือวัน
+
+    // คืนค่าในรูปแบบ DD-MM-YYYY
+    return `${day}${s1}${month}${s1}${year}`;
+}
+
+/**
+ * ฟังก์ชันสำหรับแปลงวันที่จากรูปแบบ YYYYMMDDHHMMSS เป็น DD-MM-YYYY
+ * @param ymdhhmmss - วันที่ในรูปแบบ YYYYMMDD หรือ YYYYMMDDHHMM หรือ YYYYMMDDHHMMSS, dilimeter default '-'
+ * @returns วันที่ในรูปแบบ DD-MM-YYYY
+ */
+export function get_ymd_to_dmy543String(ymdhhmmss: string, dilimeter?: string | null): string {
+    // ตรวจสอบว่าความยาวของ input ต้องมีอย่างน้อย 8 ตัวอักษร
+    if (ymdhhmmss.length < 8) {
+        throw new Error('Invalid input. The date format should be at least YYYYMMDD.');
+    }
+
+    let s1: string = "-"
+    if (dilimeter !== undefined && dilimeter !== null) {
+        s1 = dilimeter;
+    }
+
+    // ดึงข้อมูลจาก string
+    const year = (parseInt(ymdhhmmss.substring(0, 4))+543)+""; // 4 ตัวแรกคือปี
     const month = ymdhhmmss.substring(4, 6); // ถัดมา 2 ตัวคือเดือน
     const day = ymdhhmmss.substring(6, 8); // ถัดมาอีก 2 ตัวคือวัน
 
@@ -679,6 +743,27 @@ export function get_dateutc(
 }
 
 /**
+ * ฟังก์ชันสำหรับแปลงวันที่ dateutc ในรูปแบบ YYMMDDHHMMSS
+ * @param dateUtc
+ */
+export function get_dateutc_to_ymdhhmmssString(dateUtc?: Date): string {
+    // ถ้าไม่มีการส่ง dateUtc เข้ามา ใช้ค่าเวลาปัจจุบัน
+    const date = dateUtc || new Date();
+
+    // ดึงค่า year, month, date, hours, minutes, seconds
+    const year = String(date.getUTCFullYear()); // เอาแค่ 2 ตัวท้าย
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // เดือนเริ่มจาก 0 ต้องบวก 1
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+
+    // รวมกันเป็นสตริงรูปแบบ YYMMDDHHMMSS
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
+}
+
+
+/**
  * ฟังก์ชันสำหรับแปลงวันที่ในรูปแบบ json { year: number, month: number, date: number, hh: number, mm: number, ss: number }
  * @param ymd - วันที่ในรูปแบบ ymd
  * @param ymdhhmm - วันที่ในรูปแบบ ymdhhmm
@@ -710,7 +795,7 @@ export function get_ymdhhmmssString_to_json_detail(ymdhhmmss: string): { year: n
  * @param ymdhhmmss - วันที่ในรูปแบบ ymdhhmmss
  * @returns json {ymd:'ymd', ymdhhmmss:'ymdhhmmss', ...}
  */
-export function get_json_date(ymdhhmmss: string): { 
+export function get_json_datetime(ymdhhmmss: string): { 
     year: number, month: number, date: number, hh: number, mm: number, ss: number, timestamp: number } {
     let json_detail = get_ymdhhmmssString_to_json_detail(ymdhhmmss);
 
@@ -726,4 +811,56 @@ export function get_json_date(ymdhhmmss: string): {
         ss:date1.getUTCSeconds(),
         timestamp: get_dateutc_to_timestamp(date1)
     };
+}
+
+/**
+ * Function to calculate the difference in days between two date strings.
+ * The input can be either 'YYYYMMDDHHMMSS' or 'HHMMSS'.
+ * If only 'HHMMSS' is provided, '000000' will be assumed for the date part (January 1, 2000).
+ *
+ * @param start - The start date string ('YYYYMMDDHHMMSS' or 'HHMMSS')
+ * @param end - The end date string ('YYYYMMDDHHMMSS' or 'HHMMSS')
+ * @returns The difference in days between the two dates.
+ */
+export function get_count_date_difference(start: string, end: string): number {
+
+    function formatTo14Characters(input: string, padChar: string = '0'): string {
+        // If the input is longer than 14 characters, truncate it
+        if (input.length > 14) {
+            return input.slice(0, 14);
+        }
+    
+        // If the input is shorter than 14 characters, pad it from the left
+        return input.padStart(14, padChar);
+    }
+
+    // Function to parse the input date string into a Date object
+    function parseDate(dateStr: string): Date {
+        
+        dateStr = formatTo14Characters(dateStr)
+
+        // Extract year, month, day, hours, minutes, and seconds from the string
+        const year = parseInt(dateStr.slice(0, 4));       // Get 'YYYY'
+        const month = parseInt(dateStr.slice(4, 6)) - 1;  // Get 'MM' (JavaScript months are 0-based)
+        const day = parseInt(dateStr.slice(6, 8));        // Get 'DD'
+        const hours = parseInt(dateStr.slice(8, 10));     // Get 'HH'
+        const minutes = parseInt(dateStr.slice(10, 12));  // Get 'MM'
+        const seconds = parseInt(dateStr.slice(12, 14));  // Get 'SS'
+
+        // Return a JavaScript Date object
+        return new Date(year, month, day, hours, minutes, seconds);
+    }
+
+    // Parse the start and end date strings into Date objects
+    const startDate = parseDate(start);
+    const endDate = parseDate(end);
+
+    // Calculate the difference in milliseconds between the two dates
+    const diffInMs = endDate.getTime() - startDate.getTime();
+
+    // Convert milliseconds to days
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+    // Return the difference in full days (rounded down)
+    return Math.floor(diffInDays);
 }

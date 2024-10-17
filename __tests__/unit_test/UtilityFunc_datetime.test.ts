@@ -43,7 +43,7 @@ import * as dateUtils from '../../src/UtilityFunc';
   
     test('get_ymdhhmmSsstring should return correct combined datetime', () => {
       const date = new Date(Date.UTC(2024, 9, 14, 9, 30, 45)); // 2024-10-14T09:30:45Z
-      expect(dateUtils.get_ymdhhmmSsstring(date)).toBe('20241014093045');
+      expect(dateUtils.get_ymdhhmmssString(date)).toBe('20241014093045');
     });
   
     test('get_ymd_to_dmyString should convert YYYYMMDD to DD-MM-YYYY', () => {

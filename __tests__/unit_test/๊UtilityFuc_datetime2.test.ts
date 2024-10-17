@@ -78,7 +78,7 @@ import * as dateUtils from '../../src/UtilityFunc';
     //--- Tests for get_ymdhhmmSsstring ---
     test('get_ymdhhmmSsstring should return datetime in YYYYMMDDHHMMSS format', () => {
       const date = new Date('2024-01-01T12:30:45Z');
-      expect(dateUtils.get_ymdhhmmSsstring(date)).toBe('20240101123045');
+      expect(dateUtils.get_ymdhhmmssString(date)).toBe('20240101123045');
     });
   
     //--- Tests for get_ymd_to_dmyString ---
@@ -108,6 +108,15 @@ import * as dateUtils from '../../src/UtilityFunc';
     //--- Tests for get_dmyhhmmss_to_ymdhhmmss ---
     test('get_dmyhhmmss_to_ymdhhmmss should convert DD-MM-YYYY and HH:MM:SS to YYYYMMDDHHMMSS', () => {
       expect(dateUtils.get_dmyhhmmss_to_ymdhhmmss('01-01-2024', '12:30:45')).toBe('20240101123045');
+    });
+
+
+    //--- Tests for count date number ---
+    test('get_dmyhhmmss_to_ymdhhmmss should convert DD-MM-YYYY and HH:MM:SS to YYYYMMDDHHMMSS', () => {
+      const start = '20241015000000'; // YYMMDDHHMMSS
+      const end = '20241018000000';   // YYMMDDHHMMSS
+      console.log(dateUtils.get_count_date_difference(start, end)); // Output: 1
+      expect(dateUtils.get_count_date_difference(start, end)).toBe(3);
     });
   
   });
