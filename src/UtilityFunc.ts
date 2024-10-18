@@ -10,12 +10,10 @@
  * @returns The padded string.
  */
 function pad_string_left(input: string, x: number, padStr: string = '0'): string {
-    // If the input string is already longer or equal to the specified length, return it unchanged
     if (input.length >= x) {
         return input;
     }
 
-    // Pad the string from the left until it reaches the desired length
     return input.padStart(x, padStr);
 }
 
@@ -29,12 +27,10 @@ function pad_string_left(input: string, x: number, padStr: string = '0'): string
  * @returns The padded string.
  */
 function padStringRight(input: string, x: number, padStr: string = '0'): string {
-    // If the input string is already longer or equal to the specified length, return it unchanged
     if (input.length >= x) {
         return input;
     }
 
-    // Pad the string from the right until it reaches the desired length
     return input.padEnd(x, padStr);
 }
 
@@ -154,17 +150,17 @@ export function validate_ymdhhmmss(ymdhhmmss: string): boolean {
     if (ymdhhmmss.length < 8 || ymdhhmmss.length > 14 ||
         ymdhhmmss.length === 10 || ymdhhmmss.length === 9 || ymdhhmmss.length === 11) {
 
-            return false;
+        return false;
     }
 
     // ดึงข้อมูลปี, เดือน, วัน, ชั่วโมง และนาทีจาก string
     const year = parseInt(ymdhhmmss.substring(0, 4));
     const month = parseInt(ymdhhmmss.substring(4, 6)) - 1; // เดือนใน Date ต้อง -1 (0-11)
     const day = parseInt(ymdhhmmss.substring(6, 8));
-    
-    let hours:number = 0;
-    let minutes:number = 0;
-    let seconds:number = 0;
+
+    let hours: number = 0;
+    let minutes: number = 0;
+    let seconds: number = 0;
 
     if (ymdhhmmss.length >= 12) {
         hours = parseInt(ymdhhmmss.substring(8, 10), 10);
@@ -450,7 +446,7 @@ export function get_ymd_to_dmy543String(ymdhhmmss: string, dilimeter?: string | 
     }
 
     // ดึงข้อมูลจาก string
-    const year = (parseInt(ymdhhmmss.substring(0, 4))+543)+""; // 4 ตัวแรกคือปี
+    const year = (parseInt(ymdhhmmss.substring(0, 4)) + 543) + ""; // 4 ตัวแรกคือปี
     const month = ymdhhmmss.substring(4, 6); // ถัดมา 2 ตัวคือเดือน
     const day = ymdhhmmss.substring(6, 8); // ถัดมาอีก 2 ตัวคือวัน
 
@@ -542,16 +538,16 @@ export function get_ymdhhmmssString_to_dateutc(ymdhhmmss: string): Date | null {
     // ตรวจสอบความยาวของ input ต้องเท่ากับ 14 ตัวอักษร
     if (!validate_ymdhhmmss(ymdhhmmss)) {
         throw new Error('Invalid input date.');
-    } 
+    }
 
     // ดึงข้อมูลปี, เดือน, วัน, ชั่วโมง, นาที และวินาทีจาก string
     const year = parseInt(ymdhhmmss.substring(0, 4), 10);
     const month = parseInt(ymdhhmmss.substring(4, 6), 10) - 1; // เดือนใน Date ต้อง -1 (0-11)
     const day = parseInt(ymdhhmmss.substring(6, 8), 10);
 
-    let hours:number = 0;
-    let minutes:number = 0;
-    let seconds:number = 0;
+    let hours: number = 0;
+    let minutes: number = 0;
+    let seconds: number = 0;
 
     if (ymdhhmmss.length >= 12) {
         hours = parseInt(ymdhhmmss.substring(8, 10), 10);
@@ -586,7 +582,46 @@ export function get_ymdhhmmssString_to_dateutc(ymdhhmmss: string): Date | null {
  * @param timeStr - เวลาในรูปแบบ undefinded หรือ null หรือ HH:MM หรือ HH:MM:SS
  * @returns วันที่และเวลาในรูปแบบ YYYYMMDDHHMMSS หรือ null หากรูปแบบไม่ถูกต้อง
  */
-export function get_dmyhhmmss_to_ymdhhmmss(dateStr: string, timeStr?: string | null, 
+export function get_dmy543hhmmss_to_ymdhhmmss(dateStr: string, timeStr?: string | null,
+    dilimeter_date?: string | null, dilimeter_time?: string | null): string | null {
+
+    function convertToBuddhistYear(dateString: string): string {
+        // ตรวจสอบว่า input มีความยาวเท่ากับ 14 ตัวอักษร
+        if (dateString.length !== 14) {
+            throw new Error("Input date string must be 14 characters long (YYYYMMDDHHMMSS)");
+        }
+
+        // แยกส่วนต่าง ๆ ของวันที่
+        const year = parseInt(dateString.slice(0, 4)); // YYYY
+        const monthDay = dateString.slice(4, 8);       // MMDD
+        const time = dateString.slice(8);              // HHMMSS
+
+        // เพิ่ม 543 ให้กับปีเพื่อแปลงเป็นพุทธศักราช
+        const buddhistYear = year + 543;
+
+        // รวมค่าทั้งหมดกลับเป็นสตริงใหม่ในรูปแบบ YYYY543MMDDHHMMSS
+        return `${buddhistYear}${monthDay}${time}`;
+    }
+
+    const dateStr1: string = convertToBuddhistYear(dateStr);
+
+    if (!validate_ymdhhmmss(dateStr1)) {
+        throw new Error('Invalid input date.');
+    }
+
+    return get_dmyhhmmss_to_ymdhhmmss(dateStr1, timeStr, dilimeter_date)
+
+}
+
+
+/**
+ * ฟังก์ชันสำหรับแปลงวันที่ในรูปแบบ DD-MM-YYYY และเวลาในรูปแบบ HH:MM:SS
+ * เป็นรูปแบบ YYYYMMDDHHMMSS
+ * @param dateStr - วันที่ในรูปแบบ DD-MM-YYYY
+ * @param timeStr - เวลาในรูปแบบ undefinded หรือ null หรือ HH:MM หรือ HH:MM:SS
+ * @returns วันที่และเวลาในรูปแบบ YYYYMMDDHHMMSS หรือ null หากรูปแบบไม่ถูกต้อง
+ */
+export function get_dmyhhmmss_to_ymdhhmmss(dateStr: string, timeStr?: string | null,
     dilimeter_date?: string | null, dilimeter_time?: string | null): string | null {
     // แยกวัน, เดือน และปีจาก dateStr
 
@@ -600,7 +635,7 @@ export function get_dmyhhmmss_to_ymdhhmmss(dateStr: string, timeStr?: string | n
     }
 
 
-    const dateParts:string[] = dateStr.split(s1);
+    const dateParts: string[] = dateStr.split(s1);
     if (dateParts.length !== 3) {
         return null; // คืนค่า null หากรูปแบบไม่ถูกต้อง
     }
@@ -636,7 +671,7 @@ export function get_dmyhhmmss_to_ymdhhmmss(dateStr: string, timeStr?: string | n
             return null; // คืนค่า null หากรูปแบบไม่ถูกต้อง
         }
     }
-    
+
     // สร้าง string ในรูปแบบ YYYYMMDDHHMMSS
     const ymdhhmmss = `${year}${month}${day}${hours}${minutes}${seconds}`;
     return ymdhhmmss; // คืนค่าในรูปแบบ YYYYMMDDHHMMSS
@@ -649,7 +684,7 @@ export function get_dmyhhmmss_to_ymdhhmmss(dateStr: string, timeStr?: string | n
  * @returns UTC Date object หรือ null หากรูปแบบไม่ถูกต้อง
  */
 export function get_dmyString_to_dateutc(dateStr: string, dilimeter?: string | null): Date | null {
-    
+
     let s1: string = "-"
     if (dilimeter !== undefined && dilimeter !== null) {
         s1 = dilimeter;
@@ -661,19 +696,19 @@ export function get_dmyString_to_dateutc(dateStr: string, dilimeter?: string | n
 
     // แยกวัน, เดือน และปีจาก string
     const parts = dateStr.split(s1);
-    
-    
+
+
     if (parts.length !== 3) {
         return null; // คืนค่า null หากรูปแบบไม่ถูกต้อง
     }
-    
+
     const day = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10) - 1; // เดือนใน Date ต้อง -1 (0-11)
     const year = parseInt(parts[2], 10);
-    
+
     // สร้าง UTC Date object
     const utcDate = new Date(Date.UTC(year, month, day));
-    
+
     // ตรวจสอบว่าวันที่ที่สร้างขึ้นตรงกับ input หรือไม่
     if (
         utcDate.getUTCDate() !== day ||
@@ -720,19 +755,18 @@ export function get_dateutc(
     } else {
         // ใช้ค่าที่ส่งมา
 
-        if (hh === undefined || hh === null){
+        if (hh === undefined || hh === null) {
             hh = 0
         }
-        if (mm === undefined || mm === null){
+        if (mm === undefined || mm === null) {
             mm = 0
         }
-        if (ss === undefined || ss === null){
+        if (ss === undefined || ss === null) {
             ss = 0
         }
 
         const formattedDate = `${year.toString().padStart(4, '0')}${month.toString().padStart(2, '0')}${date.toString().padStart(2, '0')}${hh.toString().padStart(2, '0')}${mm.toString().padStart(2, '0')}${ss.toString().padStart(2, '0')}`;
-        if(!validate_ymdhhmmss(formattedDate))
-        {
+        if (!validate_ymdhhmmss(formattedDate)) {
             throw new Error('Invalid input date.');
         }
 
@@ -771,7 +805,7 @@ export function get_dateutc_to_ymdhhmmssString(dateUtc?: Date): string {
  * @returns json { year: number, month: number, date: number, hh: number, mm: number, ss: number }
  */
 export function get_ymdhhmmssString_to_json_detail(ymdhhmmss: string): { year: number, month: number, date: number, hh: number, mm: number, ss: number } {
-    
+
     const date1: Date | null = get_ymdhhmmssString_to_dateutc(ymdhhmmss);
     if (date1 === null) {
         throw new Error('Invalid input. The date format should be at least YYYYMMDD.');
@@ -795,20 +829,21 @@ export function get_ymdhhmmssString_to_json_detail(ymdhhmmss: string): { year: n
  * @param ymdhhmmss - วันที่ในรูปแบบ ymdhhmmss
  * @returns json {ymd:'ymd', ymdhhmmss:'ymdhhmmss', ...}
  */
-export function get_json_datetime(ymdhhmmss: string): { 
-    year: number, month: number, date: number, hh: number, mm: number, ss: number, timestamp: number } {
+export function get_json_datetime(ymdhhmmss: string): {
+    year: number, month: number, date: number, hh: number, mm: number, ss: number, timestamp: number
+} {
     let json_detail = get_ymdhhmmssString_to_json_detail(ymdhhmmss);
 
-    let date1: Date = get_dateutc(json_detail.year, json_detail.month, json_detail.date, 
+    let date1: Date = get_dateutc(json_detail.year, json_detail.month, json_detail.date,
         json_detail.hh, json_detail.mm, json_detail.ss);
 
     return {
-        year:date1.getUTCFullYear(),
-        month:date1.getUTCMonth()+1,
-        date:date1.getUTCDate(),
-        hh:date1.getUTCHours(),
-        mm:date1.getUTCMinutes(),
-        ss:date1.getUTCSeconds(),
+        year: date1.getUTCFullYear(),
+        month: date1.getUTCMonth() + 1,
+        date: date1.getUTCDate(),
+        hh: date1.getUTCHours(),
+        mm: date1.getUTCMinutes(),
+        ss: date1.getUTCSeconds(),
         timestamp: get_dateutc_to_timestamp(date1)
     };
 }
@@ -829,14 +864,14 @@ export function get_count_date_difference(start: string, end: string): number {
         if (input.length > 14) {
             return input.slice(0, 14);
         }
-    
+
         // If the input is shorter than 14 characters, pad it from the left
         return input.padStart(14, padChar);
     }
 
     // Function to parse the input date string into a Date object
     function parseDate(dateStr: string): Date {
-        
+
         dateStr = formatTo14Characters(dateStr)
 
         // Extract year, month, day, hours, minutes, and seconds from the string
