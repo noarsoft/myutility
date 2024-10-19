@@ -586,11 +586,6 @@ export function get_dmy543hhmmss_to_ymdhhmmss(dateStr: string, timeStr?: string 
     dilimeter_date?: string | null, dilimeter_time?: string | null): string | null {
 
     function convertToBuddhistYear(dateString: string): string {
-        // ตรวจสอบว่า input มีความยาวเท่ากับ 14 ตัวอักษร
-        if (dateString.length !== 14) {
-            throw new Error("Input date string must be 14 characters long (YYYYMMDDHHMMSS)");
-        }
-
         // แยกส่วนต่าง ๆ ของวันที่
         const year = parseInt(dateString.slice(0, 4)); // YYYY
         const monthDay = dateString.slice(4, 8);       // MMDD
@@ -604,6 +599,11 @@ export function get_dmy543hhmmss_to_ymdhhmmss(dateStr: string, timeStr?: string 
     }
 
     const dateStr1: string = convertToBuddhistYear(dateStr);
+    console.log(dateStr1)
+    // ตรวจสอบว่า input มีความยาวเท่ากับ 14 ตัวอักษร
+    if (dateStr1.length !== 14) {
+        throw new Error("Input date string must be 14 characters long (YYYYMMDDHHMMSS)");
+    }
 
     if (!validate_ymdhhmmss(dateStr1)) {
         throw new Error('Invalid input date.');
