@@ -1,0 +1,31 @@
+{
+    "name": "myserver",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "jest",
+        "keygen": "node dist/project_key.js",
+        "close": "node dist/project_close.js",
+        "open": "node dist/project_open.js",
+        "build": "tsc"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "archiver": "^7.0.1",
+        "glob": "^11.0.0",
+        "unzipper": "^0.12.3"
+    },
+    "devDependencies": {
+        "@types/archiver": "^6.0.2",
+        "@types/jest": "^29.5.13",
+        "@types/k6": "^0.54.1",
+        "@types/node": "^22.4.1",
+        "@types/unzipper": "^0.10.10",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.2.5",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.6.3"
+    }
+}
